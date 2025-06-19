@@ -1,4 +1,4 @@
-# **Sprint 1**
+# **Sprint 2**
 * **Nombre:** Serrano Arostegui, Edy Saul
 * **Proyecto:**  Pull requests y revision de codigo Automatizada con Hooks y Linters **(Proyecto 10)**
 * **Grupo:** #6
@@ -14,102 +14,212 @@ git clone https://github.com/OliverHz28/PC3Proyecto10.git
 Repositorio donde documento mis contribuciones al `Proyecto 10: Pull requests y revisión de código Automatizada con Hooks y Linters` en sus respectivas ramas.
 
 #### Demostracion en video
-[Sprint 1 (Dia 3: 9/06/2025) Grupo 6 Proyecto 10 ](https://www.youtube.com/watch?v=ZwcuikAZ56w)
+[Sprint 2 (Dia 8: 17/06/2025) Grupo 6 Proyecto 10 ](https://www.youtube.com/watch?v=CXj9d7sZ-J0)
 #### **Mi Rol**
-  * Sprint 1: Me encargue de la elavoracion de los test para el archivo `config_modifier.py` y crear el esqueleto del workflow inicial (`pr_validation.yaml`):
+  * Sprint 2: Me encargue de:
+    * La simulacion del pull_request local en el workflow (`pr_validation.yaml`) con `act` ejecutandoce en un contenedor de docker.
+    * La mejora del archivo `lint_all.sh` sobre el manejo de errores.
+    * Extender el workflow de Actions para Pull Request usando `matrix strategy` en `pr_validation.yaml`.
 
     ```
         .
         ├───.github/
                 └── workflows/
                     └── pr_validation
-        ├─── tests/
-                └── test_config_modifier.py
-        └── README.md
+        ├─── scripts/
+                └── lint_all.sh
     ```
-## Contribucion:
+## Contribucion (solo codigo):
 
-* Desarrollar los test de `config_modifier.py` en `tests` para el [Issue #2](https://github.com/OliverHz28/PC3Proyecto10/issues/2)
-
-    ```python
-  # tests/test_config_modifier.py
-
-  import pytest
-  import json
-  import sys
-  import os
-
-  sys.path.insert(0, os.path.abspath(
-      os.path.join(os.path.dirname(__file__), '..', 'src')))
-
-  from config_modifier import leer_json, incrementar_version
-
-  @pytest.fixture
-  # Preparamos un archivo temporal para pruebas
-  def json_de_prueba(tmp_path):
-      file_path = tmp_path / "config.json"
-      data = {"version": 1.0, "name": "Test App"}
-      with open(file_path, 'w') as f:
-          json.dump(data, f)
-      return file_path
-
-
-  # Preparamos un archivo JSON valido para probar la lectura correcta
-  def test_leer_json_valido(json_de_prueba):
-      contenido = leer_json(json_de_prueba)
-      assert contenido["version"] == 1.0
-      assert contenido["name"] == "Test App"
-
-
-  # Preparamos un archivo JSON con el campo 'version'
-  # valido para probar el incremento de version
-  def test_incrementar_version(json_de_prueba):
-      nueva_version = incrementar_version(json_de_prueba)
-      assert nueva_version == 2.0
-      with open(json_de_prueba) as f:
-          datos = json.load(f)
-      assert datos["version"] == 2.0
-
-
-  # Preparamos un archivo  con contenido invalido (no JSON)
-  def test_leer_json_invalido(tmp_path):
-      file_path = tmp_path / "invalido.json"
-      file_path.write_text("esto no es json")
-      with pytest.raises(ValueError):
-          leer_json(file_path)
-
-
-  # Preparamos un archivo JSON con campo 'version' de tipo incorrecto
-  def test_incrementar_version_tipo_incorrecto(tmp_path):
-      file_path = tmp_path / "version_invalida.json"
-      with open(file_path, 'w') as f:
-          json.dump({"version": "uno"}, f)
-      with pytest.raises(TypeError):
-          incrementar_version(file_path)
-
-    ```
-* Crear es esqueleto inicial del workflow en `pr_validation.py` segun el [Issue #3](https://github.com/OliverHz28/PC3Proyecto10/issues/3)
+* Configurar `pr_validation.yaml` para ejecutar el `act` localmente segun lo especificado en el [Issue #21](https://github.com/OliverHz28/PC3Proyecto10/issues/21)
 
     ```yaml
-    name: PR Validation  
+    name: PR Validation Pipeline
 
     on:
-      push:              
-      pull_request:     
+    pull_request:
+        branches: [ main, develop ]
 
     jobs:
-      placeholder:
-        runs-on: ubuntu-latest   
+    validate-pr:
+        runs-on: ubuntu-latest
+        steps:
+        - name: Checkout código
+            uses: actions/checkout@v3
 
-        steps: # el job placeholder es uno vacio
-          - name: Paso de ejemplo (Placeholder)  
-            run: echo "Workflow placeholder"
+        - name: Configurar Python
+            uses: actions/setup-python@v4
+            with:
+            python-version: '3.9'
 
-          # Aqui se pueden agregar pasos siguientes, como:
-          # - Validacion de formato de codigo (linter)
-          # - Ejecucion de pruebas unitarias
-          # - Validacion de la construccion del proyecto (build)
-      
+        - name: Instalar dependencias
+            run: |
+            pip install pytest pytest-cov flake8 bandit
+            sudo apt-get update && sudo apt-get install -y shellcheck
+
+        - name: Ejecutar linting
+            run: |
+            chmod +x ./scripts/lint_all.sh
+            ./scripts/lint_all.sh
+
+
+        - name: Ejecutar pruebas
+            run: pytest --cov=src --cov=scripts --cov-fail-under=80
+            
     ```
 
+#
+
+* Mejorar el `lint_all.sh` para un mejor manejo de errores segun el [Issue #20](https://github.com/OliverHz28/PC3Proyecto10/issues/20)
+
+    ```python
+    #!/usr/bin/env bash
+
+    cd "$(dirname "$0")/.." || exit
+
+    # Colores
+    GREEN="\033[1;32m"
+    RED="\033[1;31m"
+    YELLOW="\033[1;33m"
+    NC="\033[0m" #No Color
+
+    errores=0
+    start_time=$(date +%s)
+
+    check_tool() {
+        if ! command -v "$1" &>/dev/null; then
+            echo -e "${YELLOW} Herramienta $1 no esta instalada. Se omitira.${NC}"
+            return 1
+        fi
+        return 0
+    }
+
+    echo "Iniciando verificacion de código con linters..."
+    echo "==============================================="
+
+
+    if check_tool flake8; then
+        echo "*********************"
+        echo "Ejecutando flake8"
+        if flake8 src/ tests/ --max-line-length=88 --select=E,W,F; then
+            echo -e "${GREEN} No se encontraron errores con flake8${NC}"
+        else
+            echo -e "${RED} flake8 encontró errores${NC}"
+            errores=1
+        fi
+    fi
+
+    if check_tool shellcheck; then
+        echo "*********************"
+        echo "Ejecutando shellcheck"
+        if shellcheck scripts/*.sh hooks/*; then 
+            echo -e "${GREEN} No se encontraron errores con shellcheck${NC}"
+        else
+            echo -e "${RED} shellcheck encontró errores${NC}"
+        errores=1
+        fi
+    fi
+
+    echo "*********************"
+    echo "Ejecutando tflint"
+    if [ -d "iac" ]; then
+    if tflint --enable-all iac/; then
+        echo "No se encontraron errores con tflint"
+    else
+        echo "tflint encontro errores"
+        errores=1
+    fi
+    else
+    echo "No se encontro el directorio de IaC"
+    fi
+
+    if check_tool bandit; then
+        echo "*********************"
+        echo "Ejecutando bandit"
+        if bandit -r src/ > bandit_report.txt; then
+            echo -e "${GREEN} No se encontraron errores con bandit${NC}"
+        else
+            echo -e "${RED} bandit encontró vulnerabilidades${NC}"
+            errores=1
+            cat bandit_report.txt
+        fi
+    fi
+
+    echo "==============================================="
+    end_time=$(date +%s)
+    duration=$((end_time - start_time))
+
+    echo -e "${YELLOW} Resumen de linting:${NC}"
+    echo " Tiempo de ejecución: ${duration}s"
+
+    if [ $errores -eq 1 ]; then
+        echo -e "${RED} Se encontraron errores de linting. Revisa los mensajes anteriores.${NC}"
+        exit 1
+    else
+        echo -e "${GREEN} Todos los linters pasaron correctamente. ¡Buen trabajo!${NC}"
+        exit 0
+    fi
+      
+    ```
+#
+    
+* Extender`pr_validation.yaml` usando `matrix strategy` y ejecutar localmente el pull request con `act` usando `act pull_request`, todo esto especificado en el  [Issue #19](https://github.com/OliverHz28/PC3Proyecto10/issues/19)
+
+    ```yaml
+    name: PR Validation Pipeline
+
+    on:
+    pull_request:
+        branches: [ main, develop ]
+    workflow_dispatch:
+        inputs:
+        pr_ids:
+            description: 'Lista de PR IDs simulados (["13","12"])'
+            required: true
+            default: '["local"]'
+
+    jobs:
+    validate-pr:
+        runs-on: ubuntu-latest
+
+        strategy:
+        fail-fast: false
+        matrix:
+            python-version: [3.9]
+            pr_id: ${{ github.event_name == 'workflow_dispatch'
+                        && fromJson(inputs.pr_ids)
+                        || fromJson('["local"]') }}
+        steps:
+        - name: Checkout código
+            uses: actions/checkout@v2
+
+        - name: Configurar Python
+            uses: actions/setup-python@v4
+            with:
+            python-version: ${{ matrix.python-version }}
+
+        - name: Instalar dependencias
+            run: |
+            pip install pytest pytest-cov flake8 bandit
+            sudo apt-get update && sudo apt-get install -y shellcheck
+
+        - name: Ejecutar linting
+            run: |
+            chmod +x ./scripts/lint_all.sh
+            ./scripts/lint_all.sh
+
+
+        - name: Ejecutar pruebas
+            run: pytest --cov=src --cov=scripts --cov-fail-under=80
+
+        - name: Preparar carpeta pr_simulation
+            run: |
+            mkdir -p pr_simulation/${{ matrix.pr_id }}
+
+        - name: Ejecutar validacion (check_pr.py)
+            working-directory: scripts
+            run: |
+            python3 check_pr.py
+
+    ```
     #### [**Contribucciones**](CONTRIBUTIONS.md)
