@@ -29,7 +29,7 @@ Repositorio donde documento mis contribuciones al `Proyecto 10: Pull requests y 
     ```
 ## Contribucion:
 
-* Desarrollar los test de `config_modifier.py` en `tests` para el [Issue #2](https://github.com/OliverHz28/PC3Proyecto10/issues/2)
+* Desarrollar los tests de `config_modifier.py` en `tests` para el [Issue #2](https://github.com/OliverHz28/PC3Proyecto10/issues/2)
 
     ```python
   # tests/test_config_modifier.py
