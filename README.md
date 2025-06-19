@@ -126,10 +126,10 @@ bandit, shellcheck, Python, flake8 personalizado, act, Markdown (README.md) y vi
 
 ---
 
-## 6. Sobre los Issues
+## 6. Importante
 * Crear issues por cada tarea y poblarlas en el tablero Kanban.
 * Configurar entorno Python v3.9, instalar dependencias (`pip install -r requirements.txt`).
-* Iniciar Sprint 1 siguiendo la guia y grabar el video de demostracion.
+* Iniciar Sprint 1,2 y 3 siguiendo la guia y grabar el video de demostracion.
 
 
 **Recordatorio del proyecto:** 
