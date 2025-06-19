@@ -132,13 +132,10 @@ bandit, shellcheck, Python, flake8 personalizado, act, Markdown (README.md) y vi
 * Iniciar Sprint 1,2 y 3 siguiendo la guia y grabar el video de demostracion.
 
 
-**Recordatorio del proyecto:** 
-
-> _“La automatización no reemplaza la revision humana, pero garantiza que el ojo humano llegue a ver solo codigo de alta calidad.”_
-
 ## Link de los sprints individuales:
 Se van a colocar en cada rama:
 * Sprint-1:
 * Sprint-2:
 * Sprint-3:
 
+> _“La automatización no reemplaza la revision humana, pero garantiza que el ojo humano llegue a ver solo codigo de alta calidad.”_
