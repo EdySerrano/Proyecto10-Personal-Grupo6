@@ -14,7 +14,7 @@ git clone https://github.com/OliverHz28/PC3Proyecto10.git
 Repositorio donde documento mis contribuciones al `Proyecto 10: Pull requests y revisión de código Automatizada con Hooks y Linters` en sus respectivas ramas.
 
 #### Demostracion en video
-[Sprint 3 (Dia 12: 19/06/2025) Grupo 6 Proyecto 10 ](https://www.youtube.com/watch?v=EdfvsKFbDEw)
+[Sprint 3 (Dia 12: 19/06/2025) Grupo 6 Proyecto 10 ](https://www.youtube.com/watch?v=nRNpyQhkx0E)
 #### **Mi Rol**
   * Sprint 3: Me encargue de:
     * La simulacion del pull_request local en el workflow (`pr_validation.yaml`) con `act` pero ahora se le va implementar el `bandit` que mediante el job `scan-security` va ver las vulnerabilidades del codigo.
