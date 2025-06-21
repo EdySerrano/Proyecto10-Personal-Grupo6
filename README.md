@@ -134,8 +134,8 @@ bandit, shellcheck, Python, flake8 personalizado, act, Markdown (README.md) y vi
 
 ## Link de los sprints individuales:
 Se van a colocar en cada rama:
-* Sprint-1:
-* Sprint-2:
-* Sprint-3:
+* Sprint-1: https://github.com/EdySerrano/Proyecto10-Personal-Grupo6/tree/Sprint-1
+* Sprint-2: https://github.com/EdySerrano/Proyecto10-Personal-Grupo6/tree/Sprint-2
+* Sprint-3: https://github.com/EdySerrano/Proyecto10-Personal-Grupo6/tree/Sprint-3
 
 > _“La automatización no reemplaza la revision humana, pero garantiza que el ojo humano llegue a ver solo codigo de alta calidad.”_
